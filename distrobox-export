@@ -390,10 +390,10 @@ export_application() {
 	# by its launcher name.
 	desktop_files=$(
 		# shellcheck disable=SC2086
-		find ${canon_dirs} -type f -print0 -o -type l -print0 |
-			xargs -0I{} grep -Zl -e "Exec=.*${exported_app}.*" -e "Name=.*${exported_app}.*" "{}" |
-			xargs -0I{} grep -ZL -e "Exec=.*${DISTROBOX_ENTER_PATH:-"distrobox-enter"}.*" "{}" |
-			xargs -0I{} printf "%s@" "{}"
+		find ${canon_dirs} -type f -print -o -type l -print | sed 's/./\\\0/g' |
+			xargs -I{} grep -l -e "Exec=.*${exported_app}.*" -e "Name=.*${exported_app}.*" "{}" | sed 's/./\\\0/g' |
+			xargs -I{} grep -L -e "Exec=.*${DISTROBOX_ENTER_PATH:-"distrobox-enter"}.*" "{}" | sed 's/./\\\0/g' |
+			xargs -I{} printf "%s@" "{}"
 	)
 
 	# Ensure the app we're exporting is installed
